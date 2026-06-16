@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="th">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,27 +23,27 @@
           </div>
         </header>
 
-        <section class="input-section" aria-label="เพิ่มงานใหม่">
-          <input id="todo-input" class="todo-input" type="text" placeholder="พิมพ์สิ่งที่ต้องทำ..." />
+        <section class="input-section" aria-label="Add a task">
+          <input id="todo-input" class="todo-input" type="text" placeholder="Type your next little mission..." />
           <button id="add-button" class="add-button" type="button">
             <span class="plus" aria-hidden="true">＋</span>
-            เพิ่มงาน
+            Add Task
           </button>
           <p id="message"></p>
         </section>
 
-        <nav class="filter-list" aria-label="เมนูหน้าเว็บ">
+        <nav class="filter-list" aria-label="Site navigation">
           <a href="index.html" class="filter-button is-active">🏃‍♂️ Todo List</a>
           <a href="expense/รายรับ-รายจ่าย/index.html" class="filter-button">🪙 Coin Keeper</a>
         </nav>
 
-        <section id="todo-list" class="todo-panel" aria-label="รายการงาน"></section>
+        <section id="todo-list" class="todo-panel" aria-label="Tasks"></section>
 
         <footer class="status-card">
           <div class="status-emoji" id="summary-emoji" aria-hidden="true">🪴</div>
           <div class="status-copy">
-            <p class="status-title" id="summary-title">เหลือ 0 งานที่ยังไม่เสร็จ</p>
-            <p class="status-text" id="summary-message">สู้ ๆ นะ! คุณทำได้แน่นอน <span aria-hidden="true">✨</span></p>
+            <p class="status-title" id="summary-title">0 Task remaining</p>
+            <p class="status-text" id="summary-message">Keep going! You've got this! ✨ <span aria-hidden="true">✨</span></p>
           </div>
         </footer>
       </section>

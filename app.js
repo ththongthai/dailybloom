@@ -93,7 +93,7 @@ function createTodoItem(text, completed) {
   deleteButton.className = "delete-button";
   deleteButton.type = "button";
   deleteButton.textContent = "🗑";
-  deleteButton.setAttribute("aria-label", "ลบงาน");
+  deleteButton.setAttribute("aria-label", "Delete task");
   todoItem.append(todoMain);
   todoItem.append(deleteButton);
 
@@ -128,10 +128,10 @@ addButton.addEventListener("click", function () {
   alertBox.style.display = "none";
 
   const todoItem = createTodoItem(taskName, false);
-  todoList.append(todoItem); //เอา todoItem ใส่ใน todoList
+  todoList.append(todoItem);
   updateSummary();
   saveTodos();
-  todoInput.value = ""; //ล้างช่อง input
+  todoInput.value = "";
   todoInput.focus();
 });
 alertClose.addEventListener("click", function () {
