@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>บัญชีรายรับ-รายจ่าย</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css?v=20260612-1" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body>
+    <main class="app">
+      <a href="../../index.html" class="back-home-button">← กลับไป Todo List</a>
+
+      <section class="hero">
+        <p class="eyebrow">บันทึกการเงินส่วนตัว</p>
+        <h1>บันทึกการออมเงินของคุณ</h1>
+        <p class="hero-copy">
+          เพิ่มรายการ, ดูยอดคงเหลือ, และเช็กภาพรวมการใช้เงินได้ทันที
+        </p>
+      </section>
+
+      <section class="dashboard">
+        <article class="balance-card">
+          <span>ยอดคงเหลือทั้งหมด</span>
+          <strong id="balance" aria-live="polite">฿0.00</strong>
+          <small id="summary-text" aria-live="polite"
+            >ยังไม่มีรายการในระบบ</small
+          >
+          <p id="balance-compare" aria-live="polite">
+            🚀 ยังไม่มีรายการ ลองบันทึกรายรับหรือรายจ่ายแรกกันเลย
+          </p>
+        </article>
+
+        <div class="summary-grid" aria-label="สรุปรายรับรายจ่าย">
+          <article class="summary income">
+            <span>รายรับ</span>
+            <strong id="money-plus" aria-live="polite">฿0.00</strong>
+          </article>
+          <article class="summary expense">
+            <span>รายจ่าย</span>
+            <strong id="money-minus" aria-live="polite">฿0.00</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel notebook-panel">
+        <div class="section-title">
+          <h2>หน้าบันทึก</h2>
+          <p>สลับหน้าหรือสร้างหน้าบันทึกใหม่</p>
+          <p id="notebook-meta" class="notebook-meta">สร้างหน้าใหม่</p>
+        </div>
+
+        <div class="notebook-controls">
+          <select id="notebook-select" aria-label="เลือกหน้าบันทึก"></select>
+          <button type="button" id="add-notebook-btn" class="btn">
+            สร้างหน้าบันทึก
+          </button>
+          <button type="button" id="rename-notebook-btn" class="btn">
+            แก้ชื่อ
+          </button>
+          <button type="button" id="delete-notebook-btn" class="btn">ลบ</button>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <article class="panel form-panel">
+          <div class="section-title">
+            <h2 id="form-title">เพิ่มธุรกรรม</h2>
+            <p id="form-description">ระบุชื่อรายการและจำนวนเงิน</p>
+          </div>
+
+          <form id="form" class="transaction-form">
+            <label class="field">
+              <span>ชื่อรายการ</span>
+              <input
+                type="text"
+                id="text"
+                name="text"
+                placeholder="เช่น ค่าอาหาร, เงินเดือน"
+                autocomplete="off"
+                required
+              />
+            </label>
+
+            <fieldset class="field transaction-type-field">
+              <legend>ประเภทรายการ</legend>
+              <div class="transaction-type-group">
+                <label class="transaction-type-option">
+                  <input
+                    type="radio"
+                    name="transaction-type"
+                    value="income"
+                    checked
+                  />
+                  <span>รายรับ</span>
+                </label>
+                <label class="transaction-type-option">
+                  <input type="radio" name="transaction-type" value="expense" />
+                  <span>รายจ่าย</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <label class="field">
+              <span>จำนวนเงิน</span>
+              <input
+                type="number"
+                id="amount"
+                name="amount"
+                placeholder="เช่น 250 หรือ 199.99"
+                step="0.01"
+                inputmode="decimal"
+                min="0"
+                required
+              />
+            </label>
+
+            <button type="submit" id="submit-button" class="btn">
+              เพิ่มรายการ
+            </button>
+            <button type="button" id="cancel-edit" class="btn btn-secondary">
+              ยกเลิกการแก้ไข
+            </button>
+          </form>
+        </article>
+
+        <article class="panel history-panel">
+          <div class="section-title">
+            <h2>ประวัติธุรกรรม</h2>
+            <p id="history-count" aria-live="polite">ทั้งหมด 0 รายการ</p>
+          </div>
+
+          <ul
+            id="list"
+            class="transaction-list"
+            aria-label="รายการธุรกรรม"
+          ></ul>
+          <div
+            id="empty-state"
+            class="empty-state"
+            role="status"
+            aria-live="polite"
+          >
+            ยังไม่มีรายการ ลองเพิ่มธุรกรรมแรกของคุณได้เลย
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script src="./app.js?v=20260612-1"></script>
+  </body>
+</html>

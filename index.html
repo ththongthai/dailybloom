@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Todo List</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="todo-card">
+        <header class="hero">
+          <div class="title-wrap">
+            <span class="title-icon" aria-hidden="true">📝</span>
+            <div>
+              <h1>My Todo List</h1>
+              <p class="subtitle">วันนี้จะทำอะไรให้สำเร็จกันนะ <span aria-hidden="true">💪</span></p>
+            </div>
+            <span class="heart-icon" aria-hidden="true">♡</span>
+          </div>
+        </header>
+
+        <section class="input-section" aria-label="เพิ่มงานใหม่">
+          <input id="todo-input" class="todo-input" type="text" placeholder="พิมพ์สิ่งที่ต้องทำ..." />
+          <button id="add-button" class="add-button" type="button">
+            <span class="plus" aria-hidden="true">＋</span>
+            เพิ่มงาน
+          </button>
+          <p id="message"></p>
+        </section>
+
+        <nav class="filter-list" aria-label="เมนูหน้าเว็บ">
+          <a href="index.html" class="filter-button is-active">Todo List</a>
+          <a href="expense/รายรับ-รายจ่าย/index.html" class="filter-button">รายรับรายจ่าย</a>
+        </nav>
+
+        <section id="todo-list" class="todo-panel" aria-label="รายการงาน"></section>
+
+        <footer class="status-card">
+          <div class="status-emoji" id="summary-emoji" aria-hidden="true">🪴</div>
+          <div class="status-copy">
+            <p class="status-title" id="summary-title">เหลือ 0 งานที่ยังไม่เสร็จ</p>
+            <p class="status-text" id="summary-message">สู้ ๆ นะ! คุณทำได้แน่นอน <span aria-hidden="true">✨</span></p>
+          </div>
+        </footer>
+      </section>
+    </main>
+
+    <div id="alert-box">
+      <div id="alert-card">
+        <p id="alert-text">📝 What would you like to do today?</p>
+        <button id="alert-close" type="button">OK</button>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
