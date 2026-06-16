@@ -1,54 +1,43 @@
 <!doctype html>
-<html lang="th">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>บัญชีรายรับ-รายจ่าย</title>
+    <title>Coin Keeper</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./style.css?v=20260612-1" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
   <body>
     <main class="app">
-      <nav class="page-switch" aria-label="เมนูหน้าเว็บ">
-        <a href="../../index.html" class="page-switch-button">Todo List</a>
-        <a href="index.html" class="page-switch-button is-active"
-          >รายรับรายจ่าย</a
-        >
+      <nav class="page-switch" aria-label="Site navigation">
+        <a href="../../index.html" class="page-switch-button">🏃‍♂️ Todo List</a>
+        <a href="index.html" class="page-switch-button is-active">🪙 Coin Keeper</a>
       </nav>
 
       <section class="hero">
-        <p class="eyebrow">บันทึกการเงินส่วนตัว</p>
-        <h1>บันทึกการออมเงินของคุณ</h1>
-        <p class="hero-copy">
-          เพิ่มรายการ, ดูยอดคงเหลือ, และเช็กภาพรวมการใช้เงินได้ทันที
-        </p>
+        <p class="eyebrow">Personal Finance Tracker</p>
+        <h1>Track Your Savings Journey 💰</h1>
+        <p class="hero-copy">Add transactions, track your balance, and stay on top of your finances.</p>
       </section>
 
       <section class="dashboard">
         <article class="balance-card">
-          <span>ยอดคงเหลือทั้งหมด</span>
+          <span>Total Balance</span>
           <strong id="balance" aria-live="polite">฿0.00</strong>
-          <small id="summary-text" aria-live="polite"
-            >ยังไม่มีรายการในระบบ</small
-          >
-          <p id="balance-compare" aria-live="polite">
-            🚀 ยังไม่มีรายการ ลองบันทึกรายรับหรือรายจ่ายแรกกันเลย
-          </p>
+          <small id="summary-text" aria-live="polite">No transactions yet</small>
+          <p id="balance-compare" aria-live="polite">🚀 No transactions yet. Add your first income or expense to get started.</p>
         </article>
 
-        <div class="summary-grid" aria-label="สรุปรายรับรายจ่าย">
+        <div class="summary-grid" aria-label="Income and expense summary">
           <article class="summary income">
-            <span>รายรับ</span>
+            <span>Income</span>
             <strong id="money-plus" aria-live="polite">฿0.00</strong>
           </article>
           <article class="summary expense">
-            <span>รายจ่าย</span>
+            <span>Expenses</span>
             <strong id="money-minus" aria-live="polite">฿0.00</strong>
           </article>
         </div>
@@ -56,104 +45,64 @@
 
       <section class="panel notebook-panel">
         <div class="section-title">
-          <h2>หน้าบันทึก</h2>
-          <p>สลับหน้าหรือสร้างหน้าบันทึกใหม่</p>
-          <p id="notebook-meta" class="notebook-meta">สร้างหน้าใหม่</p>
+          <h2>Pages</h2>
+          <p>Switch between pages or create a new one</p>
+          <p id="notebook-meta" class="notebook-meta">New page</p>
         </div>
 
         <div class="notebook-controls">
-          <select id="notebook-select" aria-label="เลือกหน้าบันทึก"></select>
-          <button type="button" id="add-notebook-btn" class="btn">
-            สร้างหน้าบันทึก
-          </button>
-          <button type="button" id="rename-notebook-btn" class="btn">
-            แก้ชื่อ
-          </button>
-          <button type="button" id="delete-notebook-btn" class="btn">ลบ</button>
+          <select id="notebook-select" aria-label="Choose a page"></select>
+          <button type="button" id="add-notebook-btn" class="btn">New Page</button>
+          <button type="button" id="rename-notebook-btn" class="btn">Rename</button>
+          <button type="button" id="delete-notebook-btn" class="btn">Delete</button>
         </div>
       </section>
 
       <section class="workspace">
         <article class="panel form-panel">
           <div class="section-title">
-            <h2 id="form-title">เพิ่มธุรกรรม</h2>
-            <p id="form-description">ระบุชื่อรายการและจำนวนเงิน</p>
+            <h2 id="form-title">Add Transaction</h2>
+            <p id="form-description">Enter a name and amount for this transaction</p>
           </div>
 
           <form id="form" class="transaction-form">
             <label class="field">
-              <span>ชื่อรายการ</span>
-              <input
-                type="text"
-                id="text"
-                name="text"
-                placeholder="เช่น ค่าอาหาร, เงินเดือน"
-                autocomplete="off"
-                required
-              />
+              <span>Transaction Name</span>
+              <input type="text" id="text" name="text" placeholder="e.g. Lunch, Salary, Coffee" autocomplete="off" required />
             </label>
 
             <fieldset class="field transaction-type-field">
-              <legend>ประเภทรายการ</legend>
+              <legend>Transaction Type</legend>
               <div class="transaction-type-group">
                 <label class="transaction-type-option">
-                  <input
-                    type="radio"
-                    name="transaction-type"
-                    value="income"
-                    checked
-                  />
-                  <span>รายรับ</span>
+                  <input type="radio" name="transaction-type" value="income" checked />
+                  <span>Income</span>
                 </label>
                 <label class="transaction-type-option">
                   <input type="radio" name="transaction-type" value="expense" />
-                  <span>รายจ่าย</span>
+                  <span>Expense</span>
                 </label>
               </div>
             </fieldset>
 
             <label class="field">
-              <span>จำนวนเงิน</span>
-              <input
-                type="number"
-                id="amount"
-                name="amount"
-                placeholder="เช่น 250 หรือ 199.99"
-                step="0.01"
-                inputmode="decimal"
-                min="0"
-                required
-              />
+              <span>Amount</span>
+              <input type="number" id="amount" name="amount" placeholder="e.g. 250 or 199.99" step="0.01" inputmode="decimal" min="0" required />
             </label>
 
-            <button type="submit" id="submit-button" class="btn">
-              เพิ่มรายการ
-            </button>
-            <button type="button" id="cancel-edit" class="btn btn-secondary">
-              ยกเลิกการแก้ไข
-            </button>
+            <button type="submit" id="submit-button" class="btn">Add Transaction</button>
+            <button type="button" id="cancel-edit" class="btn btn-secondary">Cancel Edit</button>
           </form>
         </article>
 
         <article class="panel history-panel">
           <div class="section-title">
-            <h2>ประวัติธุรกรรม</h2>
-            <p id="history-count" aria-live="polite">ทั้งหมด 0 รายการ</p>
+            <h2>Transaction History</h2>
+            <p id="history-count" aria-live="polite">0 Transactions</p>
           </div>
 
-          <ul
-            id="list"
-            class="transaction-list"
-            aria-label="รายการธุรกรรม"
-          ></ul>
-          <div
-            id="empty-state"
-            class="empty-state"
-            role="status"
-            aria-live="polite"
-          >
-            ยังไม่มีรายการ ลองเพิ่มธุรกรรมแรกของคุณได้เลย
-          </div>
+          <ul id="list" class="transaction-list" aria-label="Transaction list"></ul>
+          <div id="empty-state" class="empty-state" role="status" aria-live="polite">✨ No transactions yet. Add your first one!</div>
         </article>
       </section>
     </main>

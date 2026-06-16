@@ -27,7 +27,7 @@ let state = JSON.parse(localStorage.getItem(localStorageKey)) || {
   notebooks: [
     {
       id: "personal",
-      name: "ส่วนตัว",
+      name: "Personal",
       transactions: [],
     },
   ],
@@ -49,23 +49,23 @@ function updateBalanceComparison() {
 
   if (selectedNotebook.transactions.length === 0) {
     balanceCompare.textContent =
-      "🚀 ยังไม่มีรายการ ลองบันทึกรายรับหรือรายจ่ายแรกกันเลย";
+      "🚀 No transactions yet. Add your first income or expense to get started.";
     return;
   }
 
   if (!hasTodayTransactions) {
     balanceCompare.textContent =
-      "🌤️ เช้านี้คุณยังไม่ได้ออมเงินเลย เริ่มวันนี้ด้วยเงินออมก้อนแรกกัน!";
+      "🌤️ No entries yet today. Start the day with your first transaction!";
     return;
   }
 
   if (todaySavings > yesterdaySavings) {
-    balanceCompare.textContent = "😊 เก่งมาก วันนี้เงินออมเพิ่มขึ้น!";
+    balanceCompare.textContent = "😊 Nice work. Your balance improved today!";
   } else if (todaySavings < yesterdaySavings) {
     balanceCompare.textContent =
-      "😢 วันนี้ออมน้อยกว่าเมื่อวานนิดนึง พรุ่งนี้เอาใหม่นะ!";
+      "😢 Today's balance is a little lower than yesterday's. Tomorrow is a fresh start!";
   } else {
-    balanceCompare.textContent = "🙂 ดีมาก รักษาระดับการออมไว้ได้!";
+    balanceCompare.textContent = "🙂 Looking good. You're staying on track!";
   }
 }
 
@@ -134,7 +134,7 @@ function renderNotebookMeta() {
   const selectedNotebook = getSelectedNotebook();
 
   if (selectedNotebook.transactions.length === 0) {
-    notebookMeta.textContent = "ยังไม่มีการบันทึกในหน้านี้";
+    notebookMeta.textContent = "No entries on this page yet";
     return;
   }
 
@@ -142,18 +142,18 @@ function renderNotebookMeta() {
     selectedNotebook.transactions[selectedNotebook.transactions.length - 1];
 
   notebookMeta.textContent = latestTransaction.createdAt
-    ? `บันทึกล่าสุด: ${formatDateTime(latestTransaction.createdAt)}`
-    : "ไม่มีวันเวลาบันทึก";
+    ? `Last entry: ${formatDateTime(latestTransaction.createdAt)}`
+    : "No timestamp available";
 }
 
 function formatCurrency(number) {
-  return number.toLocaleString("th-TH") + " บาท";
+  return "฿" + number.toLocaleString("en-US");
 }
 
 function formatDateTime(dateString) {
   const date = new Date(dateString);
 
-  return date.toLocaleString("th-TH", {
+  return date.toLocaleString("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
   });
@@ -163,8 +163,8 @@ function getAlertOptions(options = {}) {
   return {
     background: "#fff8fb",
     color: "#5b4a59",
-    confirmButtonText: "ตกลง",
-    cancelButtonText: "ยกเลิก",
+    confirmButtonText: "OK",
+    cancelButtonText: "Cancel",
     reverseButtons: true,
     customClass: {
       popup: "expense-alert",
@@ -181,9 +181,9 @@ function getAlertOptions(options = {}) {
 function resetForm() {
   form.reset();
   editingTransactionId = null;
-  formTitle.textContent = "เพิ่มธุรกรรม";
-  formDescription.textContent = "ระบุชื่อรายการและจำนวนเงิน";
-  submitButton.textContent = "เพิ่มรายการ";
+  formTitle.textContent = "Add Transaction";
+  formDescription.textContent = "Enter a name and amount for this transaction";
+  submitButton.textContent = "Add Transaction";
   cancelEditButton.classList.remove("show");
 }
 
@@ -216,9 +216,9 @@ function startEditTransaction(id) {
   text.value = transaction.text;
   amount.value = Math.abs(transaction.amount);
   setSelectedTransactionType(transaction.amount >= 0 ? "income" : "expense");
-  formTitle.textContent = "แก้ไขธุรกรรม";
-  formDescription.textContent = "ปรับชื่อรายการหรือจำนวนเงินแล้วกดบันทึก";
-  submitButton.textContent = "บันทึกการแก้ไข";
+  formTitle.textContent = "Edit Transaction";
+  formDescription.textContent = "Update the name or amount, then save your changes";
+  submitButton.textContent = "Save Changes";
   cancelEditButton.classList.add("show");
   text.focus();
 }
@@ -232,7 +232,7 @@ function renderTransactions() {
     showTransaction(transaction);
   });
 
-  historyCount.textContent = `ทั้งหมด ${selectedNotebook.transactions.length} รายการ`;
+  historyCount.textContent = `${selectedNotebook.transactions.length} Transactions`;
   emptyState.classList.toggle(
     "show",
     selectedNotebook.transactions.length === 0,
@@ -250,8 +250,8 @@ function addTransaction(event) {
     Swal.fire({
       ...getAlertOptions(),
       icon: "warning",
-      title: "ข้อมูลไม่ครบ",
-      text: "กรุณากรอกข้อมูลให้ครบถ้วน",
+      title: "Missing Information",
+      text: "Please fill in all required fields.",
     });
     return;
   }
@@ -260,8 +260,8 @@ function addTransaction(event) {
     Swal.fire({
       ...getAlertOptions(),
       icon: "warning",
-      title: "จำนวนเงินไม่ถูกต้อง",
-      text: "กรุณากรอกจำนวนเงินมากกว่า 0",
+      title: "Invalid Amount",
+      text: "Please enter an amount greater than 0.",
     });
     return;
   }
@@ -318,7 +318,7 @@ function showTransaction(transaction) {
   editBtn.type = "button";
   editBtn.textContent = "✎";
   editBtn.classList.add("edit-btn");
-  editBtn.setAttribute("aria-label", `แก้ไขรายการ ${transaction.text}`);
+  editBtn.setAttribute("aria-label", `Edit transaction ${transaction.text}`);
   editBtn.addEventListener("click", function () {
     startEditTransaction(transaction.id);
   });
@@ -327,7 +327,7 @@ function showTransaction(transaction) {
   deleteBtn.innerHTML =
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3.75C9 3.336 9.336 3 9.75 3h4.5c.414 0 .75.336.75.75V5h3.25a.75.75 0 0 1 0 1.5H17.5v11a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 6.5 17.5v-11H5.75a.75.75 0 0 1 0-1.5H9V3.75Zm1.5.75V5h3V4.5h-3Zm-2.5 2v11c0 .552.448 1 1 1h6c.552 0 1-.448 1-1v-11h-8Zm2.25 2.25a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0v-5.5a.75.75 0 0 1 .75-.75Zm3.5 0a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0v-5.5a.75.75 0 0 1 .75-.75Z"/></svg>';
   deleteBtn.classList.add("delete-btn");
-  deleteBtn.setAttribute("aria-label", `ลบรายการ ${transaction.text}`);
+  deleteBtn.setAttribute("aria-label", `Delete transaction ${transaction.text}`);
   deleteBtn.addEventListener("click", function () {
     removeTransaction(transaction.id);
   });
@@ -335,7 +335,7 @@ function showTransaction(transaction) {
   name.textContent = transaction.text;
   dateText.textContent = transaction.createdAt
     ? formatDateTime(transaction.createdAt)
-    : "ไม่มีวันเวลาบันทึก";
+    : "No timestamp available";
   amountText.textContent = formatCurrency(transaction.amount);
 
   details.appendChild(name);
@@ -380,16 +380,16 @@ function updateBalance() {
   );
 
   if (selectedNotebook.transactions.length === 0) {
-    summaryText.textContent = "ยังไม่มีรายการในหน้านี้";
+    summaryText.textContent = "No transactions on this page yet";
     summaryText.classList.add("summary-neutral");
   } else if (total > 0) {
-    summaryText.textContent = "ตอนนี้รายรับมากกว่ารายจ่าย";
+    summaryText.textContent = "Income is currently higher than expenses";
     summaryText.classList.add("summary-positive");
   } else if (total < 0) {
-    summaryText.textContent = "ตอนนี้รายจ่ายมากกว่ารายรับ";
+    summaryText.textContent = "Expenses are currently higher than income";
     summaryText.classList.add("summary-negative");
   } else {
-    summaryText.textContent = "ตอนนี้รายรับและรายจ่ายเท่ากัน";
+    summaryText.textContent = "Income and expenses are currently balanced";
     summaryText.classList.add("summary-neutral");
   }
 }
@@ -399,10 +399,10 @@ async function deleteNotebook() {
   const result = await Swal.fire(
     getAlertOptions({
       icon: "warning",
-      title: "ยืนยันการลบ",
-      text: `ต้องการลบหน้าบันทึก "${selectedNotebook.name}" หรือไม่`,
+      title: "Delete This Page?",
+      text: `Do you want to delete the page "${selectedNotebook.name}"?`,
       showCancelButton: true,
-      confirmButtonText: "ลบหน้าบันทึก",
+      confirmButtonText: "Delete Page",
     }),
   );
 
@@ -417,7 +417,7 @@ async function deleteNotebook() {
   if (state.notebooks.length === 0) {
     const defaultNotebook = {
       id: "personal",
-      name: "ส่วนตัว",
+      name: "Personal",
       transactions: [],
     };
 
@@ -439,15 +439,15 @@ async function renameNotebook() {
   const selectedNotebook = getSelectedNotebook();
   const result = await Swal.fire(
     getAlertOptions({
-      title: "แก้ชื่อหน้าบันทึก",
+      title: "Rename Page",
       input: "text",
       inputValue: selectedNotebook.name,
-      inputLabel: "ชื่อใหม่",
-      confirmButtonText: "บันทึกชื่อ",
+      inputLabel: "New page name",
+      confirmButtonText: "Save Name",
       showCancelButton: true,
       inputValidator: function (value) {
         if (!value || value.trim() === "") {
-          return "กรุณากรอกชื่อหน้าบันทึก";
+          return "Please enter a page name.";
         }
       },
     }),
@@ -466,14 +466,14 @@ async function renameNotebook() {
 async function createNotebook() {
   const result = await Swal.fire(
     getAlertOptions({
-      title: "สร้างหน้าบันทึกใหม่",
+      title: "Create New Page",
       input: "text",
-      inputLabel: "ชื่อหน้าบันทึก",
-      confirmButtonText: "สร้างหน้าบันทึก",
+      inputLabel: "Page name",
+      confirmButtonText: "Create Page",
       showCancelButton: true,
       inputValidator: function (value) {
         if (!value || value.trim() === "") {
-          return "กรุณากรอกชื่อหน้าบันทึก";
+          return "Please enter a page name.";
         }
       },
     }),
