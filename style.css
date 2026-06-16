@@ -169,10 +169,15 @@ h1 {
   text-decoration: none;
 }
 
-.filter-button.is-active {
+.filter-button:hover {
   color: #fff;
   background: linear-gradient(135deg, #7285ff, #5f74f3);
 }
+
+/* .filter-button.is-active {
+  color: #40508a;
+  background: #e8eeff;
+} */
 
 .todo-panel {
   margin-top: 24px;

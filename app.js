@@ -112,10 +112,8 @@ function createTodoItem(text, completed) {
 }
 
 todoInput.addEventListener("keydown", function (event) {
-  //รอฟังการกดปุ่มคีย์บอร์ดในช่อง todoInput
   if (event.key === "Enter") {
-    //ถ้าปุ่มที่กดคือ Enter
-    addButton.click(); //ให้สั่งปุ่มเพิ่มงานทำงานเหมือนผู้ใช้กดปุ่มเอง
+    addButton.click();
   }
 });
 
