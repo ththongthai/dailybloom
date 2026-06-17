@@ -35,6 +35,9 @@
         <nav class="filter-list" aria-label="Site navigation">
           <a href="index.html" class="filter-button is-active">🏃‍♂️ Todo List</a>
           <a href="expense/รายรับ-รายจ่าย/index.html" class="filter-button">🪙 Coin Keeper</a>
+          <button id="history-toggle" class="filter-button history-toggle" type="button" aria-expanded="false" aria-controls="history-section">
+            📅 Daily History
+          </button>
         </nav>
 
         <section id="todo-list" class="todo-panel" aria-label="Tasks"></section>
@@ -46,6 +49,17 @@
             <p class="status-text" id="summary-message">Keep going! You've got this! ✨ <span aria-hidden="true">✨</span></p>
           </div>
         </footer>
+
+        <section id="history-section" class="history-section" aria-label="Daily history" hidden>
+          <div class="history-header">
+            <div>
+              <p class="history-eyebrow">Your Progress Journal</p>
+              <h2>📅 Daily History</h2>
+              <p class="history-copy">Each day gets its own tiny victory card so you can look back anytime.</p>
+            </div>
+          </div>
+          <div id="history-list" class="history-grid"></div>
+        </section>
       </section>
     </main>
 
