@@ -9,58 +9,56 @@ const summaryMessage = document.getElementById("summary-message");
 const historyToggle = document.getElementById("history-toggle");
 const historySection = document.getElementById("history-section");
 const historyList = document.getElementById("history-list");
-const historyStorageKey = "dailyTodoHistory";
+const currentDateTitle = document.getElementById("current-date-title");
+const currentDateCopy = document.getElementById("current-date-copy");
+
+const appStorageKey = "dailyTodoData";
+
+let appState = loadAppState();
+let expandedHistoryDate = null;
 
 function getTodayKey() {
-  return new Date().toLocaleDateString("en-CA", {
-    timeZone: "Asia/Bangkok",
+  const now = new Date();
+  const utcTime = now.getTime() + now.getTimezoneOffset() * 60000;
+  const bangkokTime = new Date(utcTime + 7 * 60 * 60000);
+  const year = bangkokTime.getFullYear();
+  const month = String(bangkokTime.getMonth() + 1).padStart(2, "0");
+  const day = String(bangkokTime.getDate()).padStart(2, "0");
+
+  return year + "-" + month + "-" + day;
+}
+
+function formatLongDate(dateKey) {
+  const dateParts = dateKey.split("-");
+
+  if (dateParts.length !== 3) {
+    return dateKey;
+  }
+
+  const year = Number(dateParts[0]);
+  const month = Number(dateParts[1]) - 1;
+  const day = Number(dateParts[2]);
+  const date = new Date(year, month, day);
+
+  return date.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
   });
 }
 
-function getCurrentCounts() {
-  const totalCount = todoList.children.length;
-  const remainingCount = todoList.querySelectorAll(
-    ".todo-item:not(.is-completed)",
-  ).length;
-  const completedCount = totalCount - remainingCount;
+function formatShortDate(dateKey) {
+  const dateParts = dateKey.split("-");
 
-  return {
-    totalCount: totalCount,
-    completedCount: completedCount,
-    remainingCount: remainingCount,
-  };
-}
-
-function getHistoryMessage(historyEntry) {
-  if (historyEntry.totalTasks === 0) {
-    return "🌱 A soft little reset day. Tomorrow can bloom beautifully.";
+  if (dateParts.length !== 3) {
+    return dateKey;
   }
 
-  if (historyEntry.remainingTasks === 0) {
-    return "👑 Everything got done today. That is main-character energy.";
-  }
-
-  if (historyEntry.completedTasks >= historyEntry.totalTasks - 1) {
-    return "🌟 So close to a perfect streak. You did amazing today.";
-  }
-
-  if (historyEntry.completedTasks >= historyEntry.remainingTasks) {
-    return "💖 Steady progress is still progress. You're doing great.";
-  }
-
-  return "🫶 A gentle start still counts. Keep going one task at a time.";
-}
-
-function getDailyHistory() {
-  return JSON.parse(localStorage.getItem(historyStorageKey)) || {};
-}
-
-function saveDailyHistory(history) {
-  localStorage.setItem(historyStorageKey, JSON.stringify(history));
-}
-
-function formatHistoryDate(dateKey) {
-  const date = new Date(dateKey + "T00:00:00");
+  const year = Number(dateParts[0]);
+  const month = Number(dateParts[1]) - 1;
+  const day = Number(dateParts[2]);
+  const date = new Date(year, month, day);
 
   return date.toLocaleDateString("en-US", {
     weekday: "short",
@@ -70,102 +68,173 @@ function formatHistoryDate(dateKey) {
   });
 }
 
-function renderHistory() {
-  const history = getDailyHistory();
-  const historyEntries = Object.entries(history).sort(function (a, b) {
-    return b[0].localeCompare(a[0]);
-  });
-
-  historyList.innerHTML = "";
-
-  if (historyEntries.length === 0) {
-    const emptyCard = document.createElement("div");
-    emptyCard.className = "history-empty";
-    emptyCard.textContent =
-      "No daily history just yet. Finish a tiny task and your first card will appear here.";
-    historyList.append(emptyCard);
-    return;
-  }
-
-  historyEntries.forEach(function (entry) {
-    const dateKey = entry[0];
-    const historyEntry = entry[1];
-    const card = document.createElement("article");
-    const date = document.createElement("p");
-    const stats = document.createElement("div");
-    const completedStat = document.createElement("div");
-    const remainingStat = document.createElement("div");
-    const message = document.createElement("p");
-
-    card.className = "history-item";
-    date.className = "history-date";
-    stats.className = "history-stats";
-    completedStat.className = "history-stat";
-    remainingStat.className = "history-stat";
-    message.className = "history-message";
-
-    date.textContent = formatHistoryDate(dateKey);
-    completedStat.innerHTML =
-      "<span>Completed</span><span>" +
-      historyEntry.completedTasks +
-      " / " +
-      historyEntry.totalTasks +
-      "</span>";
-    remainingStat.innerHTML =
-      "<span>Remaining</span><span>" +
-      historyEntry.remainingTasks +
-      "</span>";
-    message.textContent = historyEntry.message;
-
-    stats.append(completedStat);
-    stats.append(remainingStat);
-    card.append(date);
-    card.append(stats);
-    card.append(message);
-    historyList.append(card);
-  });
+function getTaskId() {
+  return "task-" + Date.now() + "-" + Math.floor(Math.random() * 100000);
 }
 
-function saveTodayHistorySnapshot() {
-  const counts = getCurrentCounts();
-  const todayKey = getTodayKey();
-  const history = getDailyHistory();
-
-  history[todayKey] = {
-    totalTasks: counts.totalCount,
-    completedTasks: counts.completedCount,
-    remainingTasks: counts.remainingCount,
-    message: getHistoryMessage({
-      totalTasks: counts.totalCount,
-      completedTasks: counts.completedCount,
-      remainingTasks: counts.remainingCount,
-    }),
+function normalizeTask(task) {
+  return {
+    id: task && task.id ? String(task.id) : getTaskId(),
+    text: task && task.text ? String(task.text) : "",
+    completed: Boolean(task && task.completed),
   };
-
-  saveDailyHistory(history);
-  renderHistory();
 }
 
-function refreshTodoView() {
-  updateSummary();
-  saveTodos();
-  saveTodayHistorySnapshot();
+function createEmptyDayRecord() {
+  return {
+    tasks: [],
+  };
 }
 
-function toggleHistorySection() {
-  const isHidden = historySection.hasAttribute("hidden");
+function buildStateFromLegacyTodos() {
+  let legacyTodos = [];
 
-  if (isHidden) {
-    historySection.removeAttribute("hidden");
-    historyToggle.classList.add("is-history-active");
-    historyToggle.setAttribute("aria-expanded", "true");
-    renderHistory();
+  try {
+    legacyTodos = JSON.parse(localStorage.getItem("todos")) || [];
+  } catch (error) {
+    legacyTodos = [];
+  }
+
+  const todayKey = getTodayKey();
+  const normalizedTasks = legacyTodos
+    .map(function (task) {
+      return normalizeTask(task);
+    })
+    .filter(function (task) {
+      return task.text.trim() !== "";
+    });
+
+  return {
+    selectedDate: todayKey,
+    days: {
+      [todayKey]: {
+        tasks: normalizedTasks,
+      },
+    },
+  };
+}
+
+function loadAppState() {
+  let savedState = null;
+
+  try {
+    savedState = JSON.parse(localStorage.getItem(appStorageKey));
+  } catch (error) {
+    savedState = null;
+  }
+
+  if (!savedState || typeof savedState !== "object") {
+    return buildStateFromLegacyTodos();
+  }
+
+  const todayKey = getTodayKey();
+  const rawDays = savedState.days && typeof savedState.days === "object" ? savedState.days : {};
+  const normalizedDays = {};
+
+  Object.keys(rawDays).forEach(function (dateKey) {
+    const day = rawDays[dateKey];
+    const tasks = Array.isArray(day && day.tasks) ? day.tasks : [];
+
+    normalizedDays[dateKey] = {
+      tasks: tasks
+        .map(function (task) {
+          return normalizeTask(task);
+        })
+        .filter(function (task) {
+          return task.text.trim() !== "";
+        }),
+    };
+  });
+
+  if (!normalizedDays[todayKey]) {
+    normalizedDays[todayKey] = createEmptyDayRecord();
+  }
+
+  return {
+    selectedDate: todayKey,
+    days: normalizedDays,
+  };
+}
+
+function saveAppState() {
+  try {
+    localStorage.setItem(appStorageKey, JSON.stringify(appState));
+  } catch (error) {
+    return;
+  }
+}
+
+function ensureTodayRecord() {
+  const todayKey = getTodayKey();
+
+  appState.selectedDate = todayKey;
+
+  if (!appState.days[todayKey]) {
+    appState.days[todayKey] = createEmptyDayRecord();
+  }
+
+  return appState.days[todayKey];
+}
+
+function getCurrentDateKey() {
+  ensureTodayRecord();
+  return appState.selectedDate;
+}
+
+function getCurrentTasks() {
+  return ensureTodayRecord().tasks;
+}
+
+function getCountsForTasks(tasks) {
+  const totalCount = tasks.length;
+  const completedCount = tasks.filter(function (task) {
+    return task.completed;
+  }).length;
+  const remainingCount = totalCount - completedCount;
+
+  return {
+    totalCount: totalCount,
+    completedCount: completedCount,
+    remainingCount: remainingCount,
+  };
+}
+
+function getCurrentCounts() {
+  return getCountsForTasks(getCurrentTasks());
+}
+
+function getHistoryMessage(counts) {
+  if (counts.totalCount === 0) {
+    return "🌱 A soft little reset day. Tomorrow can bloom beautifully.";
+  }
+
+  if (counts.remainingCount === 0) {
+    return "👑 Everything got done today. That is main-character energy.";
+  }
+
+  if (counts.completedCount >= counts.totalCount - 1) {
+    return "🌟 So close to a perfect streak. You did amazing today.";
+  }
+
+  if (counts.completedCount >= counts.remainingCount) {
+    return "💖 Steady progress is still progress. You're doing great.";
+  }
+
+  return "🫶 A gentle start still counts. Keep going one task at a time.";
+}
+
+function renderCurrentDateBanner() {
+  const currentDateKey = getCurrentDateKey();
+  const counts = getCurrentCounts();
+
+  currentDateTitle.textContent = formatLongDate(currentDateKey);
+
+  if (counts.totalCount === 0) {
+    currentDateCopy.textContent = "Fresh day, fresh little wins. Your task list is ready.";
     return;
   }
 
-  historySection.setAttribute("hidden", "");
-  historyToggle.classList.remove("is-history-active");
-  historyToggle.setAttribute("aria-expanded", "false");
+  currentDateCopy.textContent = counts.completedCount + " finished, " + counts.remainingCount + " still waiting for you today.";
 }
 
 function updateSummary() {
@@ -184,11 +253,11 @@ function updateSummary() {
   } else if (remainingCount >= 4) {
     summaryEmoji.textContent = "⚔️";
     summaryTitle.textContent = "Mission in Progress!";
-    summaryMessage.textContent = ` ${remainingCount} tasks are waiting for you ⚔️✨`;
-  } else if (remainingCount >= 2 && remainingCount <= 3) {
+    summaryMessage.textContent = remainingCount + " tasks are waiting for you ⚔️✨";
+  } else if (remainingCount >= 2) {
     summaryEmoji.textContent = "🌿";
     summaryTitle.textContent = "So Close!";
-    summaryMessage.textContent = `Just ${remainingCount} tasks left before victory 🏆`;
+    summaryMessage.textContent = "Just " + remainingCount + " tasks left before victory 🏆";
   } else if (remainingCount === 1) {
     summaryEmoji.textContent = "😤";
     summaryTitle.textContent = "One last push!";
@@ -196,80 +265,219 @@ function updateSummary() {
   }
 }
 
-function saveTodos() {
-  const todoItems = todoList.querySelectorAll(".todo-item");
-  const todos = Array.from(todoItems).map(function (todoItem) {
-    const text = todoItem.querySelector(".todo-text").textContent;
-    const completed = todoItem.classList.contains("is-completed");
-    return {
-      text: text,
-      completed: completed,
-    };
-  });
-  localStorage.setItem("todos", JSON.stringify(todos));
-}
-
-function loadTodos() {
-  const savedTodos = localStorage.getItem("todos");
-  if (savedTodos) {
-    const todos = JSON.parse(savedTodos);
-    todos.forEach(function (todo) {
-      const text = todo.text;
-      const completed = todo.completed;
-
-      const todoItem = createTodoItem(text, completed);
-      todoList.append(todoItem);
-    });
-  }
-}
-
-function createTodoItem(text, completed) {
+function createTodoItem(task) {
   const todoItem = document.createElement("article");
-  todoItem.className = "todo-item";
-
   const todoMain = document.createElement("label");
-  todoMain.className = "todo-main";
-
   const checkbox = document.createElement("input");
-  todoMain.append(checkbox);
-
-  checkbox.addEventListener("change", function () {
-    if (checkbox.checked) {
-      todoItem.classList.add("is-completed");
-    } else {
-      todoItem.classList.remove("is-completed");
-    }
-    refreshTodoView();
-  });
-
   const checkboxUI = document.createElement("span");
-  checkboxUI.className = "checkbox-ui";
-  todoMain.append(checkboxUI);
-
   const todoText = document.createElement("span");
-  todoText.className = "todo-text";
-  todoText.textContent = text;
-  todoMain.append(todoText);
-
   const deleteButton = document.createElement("button");
+
+  todoItem.className = "todo-item";
+  todoMain.className = "todo-main";
+  checkboxUI.className = "checkbox-ui";
+  todoText.className = "todo-text";
   deleteButton.className = "delete-button";
+
+  checkbox.type = "checkbox";
+  checkbox.checked = task.completed;
   deleteButton.type = "button";
   deleteButton.textContent = "🗑";
   deleteButton.setAttribute("aria-label", "Delete task");
-  todoItem.append(todoMain);
-  todoItem.append(deleteButton);
 
-  deleteButton.addEventListener("click", function () {
-    todoItem.remove();
-    refreshTodoView();
-  });
-
-  checkbox.type = "checkbox";
-  checkbox.checked = completed;
-  if (completed === true) {
+  if (task.completed) {
     todoItem.classList.add("is-completed");
   }
+
+  checkbox.addEventListener("change", function () {
+    const currentTasks = getCurrentTasks();
+    const targetTask = currentTasks.find(function (item) {
+      return item.id === task.id;
+    });
+
+    if (!targetTask) {
+      return;
+    }
+
+    targetTask.completed = checkbox.checked;
+    persistAndRender();
+  });
+
+  deleteButton.addEventListener("click", function () {
+    const currentDateKey = getCurrentDateKey();
+
+    appState.days[currentDateKey].tasks = getCurrentTasks().filter(function (item) {
+      return item.id !== task.id;
+    });
+
+    persistAndRender();
+  });
+
+  todoText.textContent = task.text;
+
+  todoMain.appendChild(checkbox);
+  todoMain.appendChild(checkboxUI);
+  todoMain.appendChild(todoText);
+  todoItem.appendChild(todoMain);
+  todoItem.appendChild(deleteButton);
+
   return todoItem;
+}
+
+function renderCurrentTasks() {
+  todoList.innerHTML = "";
+
+  getCurrentTasks().forEach(function (task) {
+    todoList.appendChild(createTodoItem(task));
+  });
+}
+
+function createHistoryTaskItem(task) {
+  const item = document.createElement("li");
+  const badge = document.createElement("span");
+  const text = document.createElement("span");
+
+  item.className = "history-task-item";
+  badge.className = "history-task-badge";
+  badge.textContent = task.completed ? "✅" : "🌱";
+  text.textContent = task.text;
+
+  if (task.completed) {
+    item.classList.add("is-completed");
+  }
+
+  item.appendChild(badge);
+  item.appendChild(text);
+
+  return item;
+}
+
+function renderHistory() {
+  const dayEntries = Object.entries(appState.days).sort(function (a, b) {
+    return b[0].localeCompare(a[0]);
+  });
+
+  historyList.innerHTML = "";
+
+  if (dayEntries.length === 0) {
+    const emptyCard = document.createElement("div");
+    emptyCard.className = "history-empty";
+    emptyCard.textContent = "No daily history just yet. Your cute little archive will appear here.";
+    historyList.appendChild(emptyCard);
+    return;
+  }
+
+  dayEntries.forEach(function (entry) {
+    const dateKey = entry[0];
+    const dayRecord = entry[1];
+    const tasks = Array.isArray(dayRecord.tasks) ? dayRecord.tasks : [];
+    const counts = getCountsForTasks(tasks);
+    const isExpanded = expandedHistoryDate === dateKey;
+    const card = document.createElement("article");
+    const headerRow = document.createElement("div");
+    const headerText = document.createElement("span");
+    const headerButton = document.createElement("button");
+    const headerIcon = document.createElement("span");
+    const details = document.createElement("div");
+    const date = document.createElement("p");
+    const stats = document.createElement("div");
+    const totalStat = document.createElement("div");
+    const completedStat = document.createElement("div");
+    const remainingStat = document.createElement("div");
+    const message = document.createElement("p");
+    const taskHeading = document.createElement("p");
+    const taskList = document.createElement("ul");
+
+    card.className = "history-item";
+    headerRow.className = "history-accordion-row";
+    headerButton.className = "history-accordion-button";
+    headerText.className = "history-accordion-text";
+    headerIcon.className = "history-accordion-icon";
+    details.className = "history-accordion-panel";
+    headerButton.type = "button";
+    headerButton.setAttribute("aria-expanded", String(isExpanded));
+    details.hidden = !isExpanded;
+    date.className = "history-date";
+    stats.className = "history-stats";
+    totalStat.className = "history-stat";
+    completedStat.className = "history-stat";
+    remainingStat.className = "history-stat";
+    message.className = "history-message";
+    taskHeading.className = "history-task-heading";
+    taskList.className = "history-task-list";
+
+    headerText.textContent = formatShortDate(dateKey);
+    headerIcon.textContent = isExpanded ? "📖" : "📘";
+
+    date.textContent = formatLongDate(dateKey);
+    totalStat.innerHTML = "<span>Total tasks</span><span>" + counts.totalCount + "</span>";
+    completedStat.innerHTML = "<span>Completed</span><span>" + counts.completedCount + " / " + counts.totalCount + "</span>";
+    remainingStat.innerHTML = "<span>Remaining</span><span>" + counts.remainingCount + "</span>";
+    message.textContent = getHistoryMessage(counts);
+    taskHeading.textContent = "Task list for this day";
+    headerButton.addEventListener("click", function () {
+      if (expandedHistoryDate === dateKey) {
+        expandedHistoryDate = null;
+      } else {
+        expandedHistoryDate = dateKey;
+      }
+
+      renderHistory();
+    });
+
+    if (tasks.length === 0) {
+      const emptyTask = document.createElement("li");
+
+      emptyTask.className = "history-task-item";
+      emptyTask.textContent = "No tasks were added on this day yet.";
+      taskList.appendChild(emptyTask);
+    } else {
+      tasks.forEach(function (task) {
+        taskList.appendChild(createHistoryTaskItem(task));
+      });
+    }
+
+    stats.appendChild(totalStat);
+    stats.appendChild(completedStat);
+    stats.appendChild(remainingStat);
+
+    headerButton.appendChild(headerIcon);
+    headerRow.appendChild(headerText);
+    headerRow.appendChild(headerButton);
+
+    details.appendChild(date);
+    details.appendChild(stats);
+    details.appendChild(message);
+    details.appendChild(taskHeading);
+    details.appendChild(taskList);
+
+    card.appendChild(headerRow);
+    card.appendChild(details);
+    historyList.appendChild(card);
+  });
+}
+
+function persistAndRender() {
+  saveAppState();
+  renderCurrentDateBanner();
+  renderCurrentTasks();
+  updateSummary();
+  renderHistory();
+}
+
+function toggleHistorySection() {
+  const isHidden = historySection.hasAttribute("hidden");
+
+  if (isHidden) {
+    historySection.removeAttribute("hidden");
+    historyToggle.classList.add("is-history-active");
+    historyToggle.setAttribute("aria-expanded", "true");
+    return;
+  }
+
+  historySection.setAttribute("hidden", "");
+  historyToggle.classList.remove("is-history-active");
+  historyToggle.setAttribute("aria-expanded", "false");
 }
 
 todoInput.addEventListener("keydown", function (event) {
@@ -280,17 +488,22 @@ todoInput.addEventListener("keydown", function (event) {
 
 addButton.addEventListener("click", function () {
   const taskName = todoInput.value.trim();
+  const currentDateKey = getCurrentDateKey();
+
   if (taskName === "") {
     alertBox.style.display = "flex";
-
     return;
   }
 
   alertBox.style.display = "none";
 
-  const todoItem = createTodoItem(taskName, false);
-  todoList.append(todoItem);
-  refreshTodoView();
+  appState.days[currentDateKey].tasks.push({
+    id: getTaskId(),
+    text: taskName,
+    completed: false,
+  });
+
+  persistAndRender();
   todoInput.value = "";
   todoInput.focus();
 });
@@ -304,6 +517,5 @@ historyToggle.addEventListener("click", function () {
   toggleHistorySection();
 });
 
-loadTodos();
-renderHistory();
-refreshTodoView();
+ensureTodayRecord();
+persistAndRender();

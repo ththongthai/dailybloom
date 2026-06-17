@@ -198,6 +198,36 @@ h1 {
   box-shadow: 0 14px 32px rgba(174, 186, 224, 0.14);
 }
 
+.today-banner {
+  margin-top: 26px;
+  padding: 22px 24px;
+  border: 1px solid #d9e4ff;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(245, 248, 255, 0.98), rgba(236, 242, 255, 0.95));
+  box-shadow: 0 14px 28px rgba(165, 178, 220, 0.14);
+}
+
+.today-eyebrow {
+  margin: 0;
+  color: #6c7cb4;
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.today-banner h2 {
+  margin: 8px 0 0;
+  font-size: 1.7rem;
+}
+
+.today-copy {
+  margin: 8px 0 0;
+  color: var(--text-soft);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
 .todo-item {
   display: flex;
   align-items: center;
@@ -373,9 +403,54 @@ h1 {
 }
 
 .history-item {
-  padding: 22px;
+  overflow: hidden;
+  padding: 0;
+  /* padding: 22px; */
 }
 
+.history-accordion-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px;
+  background: linear-gradient(180deg, rgba(244, 247, 255, 0.96), rgba(236, 242, 255, 0.92));
+}
+
+.history-accordion-button {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 15px;
+  background: linear-gradient(180deg, rgba(244, 247, 255, 0.96), rgba(236, 242, 255, 0.92));
+}
+
+.history-accordion-button:active {
+  opacity: 0.92;
+}
+.history-accordion-button:active {
+  transform: scale(0.94);
+}
+.history-accordion-text {
+  flex: 1;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.history-accordion-icon {
+  line-height: 1;
+  font-size: 1rem;
+}
+.history-accordion-panel {
+  padding: 18px 22px 22px;
+  border-top: 1px solid rgba(217, 228, 255, 0.9);
+  background: rgba(255, 255, 255, 0.72);
+}
 .history-date {
   margin: 0;
   font-size: 1.2rem;
@@ -405,6 +480,48 @@ h1 {
   font-size: 0.98rem;
   font-weight: 700;
   line-height: 1.55;
+}
+
+.history-task-heading {
+  margin: 18px 0 10px;
+  color: #566797;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.history-task-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history-task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: #f6f8ff;
+  color: var(--text-main);
+  font-size: 0.96rem;
+  font-weight: 700;
+}
+
+.history-task-item.is-completed {
+  color: #7e8aac;
+  text-decoration: line-through;
+}
+
+.history-task-badge {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  display: inline-grid;
+  place-items: center;
+  background: #e6ecff;
 }
 
 @media (max-width: 820px) {
