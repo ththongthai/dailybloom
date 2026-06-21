@@ -16,7 +16,7 @@ const appStorageKey = "dailyTodoData";
 
 let appState = loadAppState();
 let expandedHistoryDate = null;
-let editingHistoryDate = null;
+let editingHistoryTask = null;
 
 function getTodayKey() {
   const now = new Date();
@@ -336,89 +336,113 @@ function renderCurrentTasks() {
   });
 }
 
-function createHistoryTaskItem(task) {
+function createHistoryTaskItem(dateKey, task) {
   const item = document.createElement("li");
   const badge = document.createElement("span");
-  const text = document.createElement("span");
+  const isEditingTask =
+    editingHistoryTask &&
+    editingHistoryTask.dateKey === dateKey &&
+    editingHistoryTask.taskId === task.id;
 
   item.className = "history-task-item";
   badge.className = "history-task-badge";
   badge.textContent = task.completed ? "✅" : "🌱";
-  text.textContent = task.text;
 
   if (task.completed) {
     item.classList.add("is-completed");
   }
 
-  item.appendChild(badge);
-  item.appendChild(text);
+  if (isEditingTask) {
+    const input = document.createElement("input");
+    const actions = document.createElement("div");
+    const saveButton = document.createElement("button");
+    const cancelButton = document.createElement("button");
 
-  return item;
-}
+    item.classList.add("is-editing");
+    input.className = "history-task-input";
+    input.type = "text";
+    input.value = task.text;
 
-function createHistoryNoteSection(dateKey, dayRecord) {
-  const noteSection = document.createElement("section");
-  const noteLabel = document.createElement("p");
-  const noteText = document.createElement("p");
-  const isEditing = editingHistoryDate === dateKey;
-  const currentNote = dayRecord && dayRecord.note ? String(dayRecord.note) : "";
+    actions.className = "history-task-actions";
 
-  noteSection.className = "history-note-section";
-  noteLabel.className = "history-note-label";
-  noteLabel.textContent = "Daily note";
-  noteSection.appendChild(noteLabel);
+    saveButton.className = "history-task-edit-button is-save";
+    saveButton.type = "button";
+    saveButton.textContent = "Save";
 
-  if (!isEditing) {
-    noteText.className = currentNote.trim()
-      ? "history-note-text"
-      : "history-note-text is-empty";
-    noteText.textContent = currentNote.trim()
-      ? currentNote
-      : "No note for this day yet.";
-    noteSection.appendChild(noteText);
-    return noteSection;
-  }
+    cancelButton.className = "history-task-edit-button is-cancel";
+    cancelButton.type = "button";
+    cancelButton.textContent = "Cancel";
 
-  const noteInput = document.createElement("textarea");
-  const actions = document.createElement("div");
-  const saveButton = document.createElement("button");
-  const cancelButton = document.createElement("button");
+    function saveTaskText() {
+      const nextText = input.value.trim();
 
-  noteInput.className = "history-note-input";
-  noteInput.value = currentNote;
-  noteInput.placeholder = "Write a little memory for this day...";
+      if (!nextText || !appState.days[dateKey]) {
+        return;
+      }
 
-  actions.className = "history-note-actions";
+      const targetTask = appState.days[dateKey].tasks.find(function (item) {
+        return item.id === task.id;
+      });
 
-  saveButton.className = "history-note-button is-save";
-  saveButton.type = "button";
-  saveButton.textContent = "Save";
+      if (!targetTask) {
+        return;
+      }
 
-  cancelButton.className = "history-note-button is-cancel";
-  cancelButton.type = "button";
-  cancelButton.textContent = "Cancel";
-
-  saveButton.addEventListener("click", function () {
-    if (!appState.days[dateKey]) {
-      return;
+      targetTask.text = nextText;
+      editingHistoryTask = null;
+      persistAndRender();
     }
 
-    appState.days[dateKey].note = noteInput.value.trim();
-    editingHistoryDate = null;
-    persistAndRender();
-  });
+    input.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        saveTaskText();
+      }
+    });
 
-  cancelButton.addEventListener("click", function () {
-    editingHistoryDate = null;
+    saveButton.addEventListener("click", function () {
+      saveTaskText();
+    });
+
+    cancelButton.addEventListener("click", function () {
+      editingHistoryTask = null;
+      renderHistory();
+    });
+
+    actions.appendChild(saveButton);
+    actions.appendChild(cancelButton);
+
+    item.appendChild(badge);
+    item.appendChild(input);
+    item.appendChild(actions);
+    return item;
+  }
+
+  const text = document.createElement("span");
+  const editButton = document.createElement("button");
+  const editIcon = document.createElement("span");
+
+  text.className = "history-task-text";
+  text.textContent = task.text;
+  editButton.className = "history-task-pencil";
+  editButton.type = "button";
+  editButton.setAttribute("aria-label", "Edit task");
+  editIcon.className = "history-task-pencil-icon";
+  editIcon.textContent = "✏️";
+
+  editButton.addEventListener("click", function () {
+    editingHistoryTask = {
+      dateKey: dateKey,
+      taskId: task.id,
+    };
     renderHistory();
   });
 
-  actions.appendChild(saveButton);
-  actions.appendChild(cancelButton);
-  noteSection.appendChild(noteInput);
-  noteSection.appendChild(actions);
+  item.appendChild(badge);
+  item.appendChild(text);
+  item.appendChild(editButton);
+  editButton.appendChild(editIcon);
 
-  return noteSection;
+  return item;
 }
 
 function renderHistory() {
@@ -448,8 +472,6 @@ function renderHistory() {
     const headerActions = document.createElement("div");
     const toggleButton = document.createElement("button");
     const toggleIcon = document.createElement("span");
-    const editButton = document.createElement("button");
-    const editIcon = document.createElement("span");
     const details = document.createElement("div");
     const date = document.createElement("p");
     const stats = document.createElement("div");
@@ -457,7 +479,6 @@ function renderHistory() {
     const completedStat = document.createElement("div");
     const remainingStat = document.createElement("div");
     const message = document.createElement("p");
-    const noteSection = createHistoryNoteSection(dateKey, dayRecord);
     const taskHeading = document.createElement("p");
     const taskList = document.createElement("ul");
 
@@ -465,10 +486,8 @@ function renderHistory() {
     headerRow.className = "history-accordion-row";
     headerActions.className = "history-accordion-actions";
     toggleButton.className = "history-accordion-button history-toggle-button";
-    editButton.className = "history-accordion-button history-edit-button";
     headerText.className = "history-accordion-text";
     toggleIcon.className = "history-accordion-icon";
-    editIcon.className = "history-accordion-icon";
     details.className = "history-accordion-panel";
     toggleButton.type = "button";
     toggleButton.setAttribute("aria-expanded", String(isExpanded));
@@ -476,11 +495,6 @@ function renderHistory() {
       "aria-label",
       (isExpanded ? "Hide history for " : "Show history for ") +
         formatLongDate(dateKey),
-    );
-    editButton.type = "button";
-    editButton.setAttribute(
-      "aria-label",
-      "Edit note for " + formatLongDate(dateKey),
     );
     details.hidden = !isExpanded;
     date.className = "history-date";
@@ -494,7 +508,6 @@ function renderHistory() {
 
     headerText.textContent = formatShortDate(dateKey);
     toggleIcon.textContent = isExpanded ? "📖" : "📘";
-    editIcon.textContent = "✏️";
 
     date.textContent = formatLongDate(dateKey);
     totalStat.innerHTML = "<span>Total tasks</span><span>" + counts.totalCount + "</span>";
@@ -507,12 +520,6 @@ function renderHistory() {
       renderHistory();
     });
 
-    editButton.addEventListener("click", function () {
-      expandedHistoryDate = dateKey;
-      editingHistoryDate = editingHistoryDate === dateKey ? null : dateKey;
-      renderHistory();
-    });
-
     if (tasks.length === 0) {
       const emptyTask = document.createElement("li");
 
@@ -521,7 +528,7 @@ function renderHistory() {
       taskList.appendChild(emptyTask);
     } else {
       tasks.forEach(function (task) {
-        taskList.appendChild(createHistoryTaskItem(task));
+        taskList.appendChild(createHistoryTaskItem(dateKey, task));
       });
     }
 
@@ -530,16 +537,13 @@ function renderHistory() {
     stats.appendChild(remainingStat);
 
     toggleButton.appendChild(toggleIcon);
-    editButton.appendChild(editIcon);
     headerActions.appendChild(toggleButton);
-    headerActions.appendChild(editButton);
     headerRow.appendChild(headerText);
     headerRow.appendChild(headerActions);
 
     details.appendChild(date);
     details.appendChild(stats);
     details.appendChild(message);
-    details.appendChild(noteSection);
     details.appendChild(taskHeading);
     details.appendChild(taskList);
 

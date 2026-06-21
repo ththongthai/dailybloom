@@ -23,6 +23,7 @@ body {
   font-family: "Nunito", sans-serif;
   color: var(--text-main);
   background: radial-gradient(circle at top, rgba(255, 255, 255, 0.9), transparent 38%), linear-gradient(135deg, var(--bg-start), var(--bg-end));
+  overflow-x: hidden;
 }
 
 button,
@@ -34,17 +35,21 @@ input {
   min-height: 100vh;
   display: grid;
   place-items: center;
+  width: 100%;
+  overflow-x: hidden;
   padding: 40px 20px;
 }
 
 .todo-card {
   width: min(930px, 100%);
+  max-width: 100%;
   padding: 38px;
   border-radius: 34px;
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   box-shadow: var(--shadow);
   backdrop-filter: blur(20px);
+  overflow-x: clip;
 }
 
 .hero {
@@ -351,11 +356,15 @@ h1 {
 
 .history-section {
   margin-top: 28px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding: 26px;
   border: 1px solid #d9e4ff;
   border-radius: 28px;
   background: linear-gradient(180deg, rgba(247, 250, 255, 0.98), rgba(237, 243, 255, 0.95));
   box-shadow: 0 18px 36px rgba(145, 161, 214, 0.16);
+  overflow: hidden;
 }
 
 .history-header h2 {
@@ -379,14 +388,27 @@ h1 {
   font-weight: 700;
 }
 
+.history-scroll-hint {
+  margin: 10px 0 0;
+  color: #7b87b3;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
 .history-grid {
   display: flex;
   gap: 18px;
   margin-top: 22px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
   overflow-y: hidden;
   padding-bottom: 8px;
+  padding-right: 8px;
   scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: auto;
 }
 
 .history-grid::-webkit-scrollbar {
@@ -425,6 +447,8 @@ h1 {
 
 .history-item {
   flex: 0 0 min(360px, calc(100vw - 110px));
+  max-width: 100%;
+  min-width: 0;
   overflow: hidden;
   padding: 0;
   scroll-snap-align: start;
@@ -540,90 +564,6 @@ h1 {
   line-height: 1.55;
 }
 
-.history-note-section {
-  margin-top: 18px;
-  padding: 14px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(246, 248, 255, 0.96), rgba(239, 244, 255, 0.92));
-  border: 1px solid rgba(217, 228, 255, 0.92);
-}
-
-.history-note-label {
-  margin: 0;
-  color: #6575ab;
-  font-size: 0.9rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.history-note-text {
-  margin: 10px 0 0;
-  color: var(--text-main);
-  font-size: 0.96rem;
-  font-weight: 700;
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-.history-note-text.is-empty {
-  color: var(--text-soft);
-}
-
-.history-note-input {
-  width: 100%;
-  min-height: 110px;
-  margin-top: 10px;
-  padding: 14px 16px;
-  border: 1px solid #d4e0ff;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.94);
-  color: var(--text-main);
-  font: inherit;
-  font-size: 0.96rem;
-  line-height: 1.6;
-  resize: vertical;
-  outline: none;
-}
-
-.history-note-input:focus {
-  border-color: rgba(98, 119, 246, 0.48);
-  box-shadow: 0 0 0 4px rgba(98, 119, 246, 0.12);
-}
-
-.history-note-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.history-note-button {
-  min-width: 88px;
-  min-height: 42px;
-  padding: 0 16px;
-  border: 0;
-  border-radius: 16px;
-  font-weight: 800;
-  cursor: pointer;
-  transition:
-    transform 0.16s ease,
-    opacity 0.16s ease;
-}
-
-.history-note-button:hover {
-  transform: translateY(-1px);
-}
-
-.history-note-button.is-save {
-  color: #fff;
-  background: linear-gradient(135deg, #7285ff, #5f74f3);
-}
-
-.history-note-button.is-cancel {
-  color: var(--text-main);
-  background: #eaf0ff;
-}
-
 .history-task-heading {
   margin: 18px 0 10px;
   color: #566797;
@@ -651,9 +591,103 @@ h1 {
   font-weight: 700;
 }
 
+.history-task-item.is-editing {
+  align-items: stretch;
+  flex-direction: column;
+}
+
 .history-task-item.is-completed {
   color: #7e8aac;
   text-decoration: line-through;
+}
+
+.history-task-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.history-task-pencil {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ffe9f1, #ffd8e7);
+  box-shadow: 0 8px 14px rgba(255, 179, 206, 0.2);
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    opacity 0.16s ease;
+}
+
+.history-task-pencil:hover {
+  transform: translateY(-1px);
+  opacity: 0.94;
+}
+
+.history-task-pencil:active {
+  transform: scale(0.95);
+}
+
+.history-task-pencil-icon {
+  line-height: 1;
+  font-size: 0.95rem;
+}
+
+.history-task-input {
+  width: 100%;
+  margin-top: 2px;
+  padding: 12px 14px;
+  border: 1px solid #d4e0ff;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--text-main);
+  font: inherit;
+  font-size: 0.96rem;
+  font-weight: 700;
+  outline: none;
+}
+
+.history-task-input:focus {
+  border-color: rgba(98, 119, 246, 0.48);
+  box-shadow: 0 0 0 4px rgba(98, 119, 246, 0.12);
+}
+
+.history-task-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.history-task-edit-button {
+  min-width: 72px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    opacity 0.16s ease;
+}
+
+.history-task-edit-button:hover {
+  transform: translateY(-1px);
+}
+
+.history-task-edit-button.is-save {
+  color: #fff;
+  background: linear-gradient(135deg, #7285ff, #5f74f3);
+}
+
+.history-task-edit-button.is-cancel {
+  color: var(--text-main);
+  background: #eaf0ff;
 }
 
 .history-task-badge {
@@ -702,11 +736,37 @@ h1 {
   .history-item {
     flex-basis: min(320px, calc(100vw - 90px));
   }
+
+  .history-scroll-hint {
+    display: block;
+  }
 }
 
 @media (max-width: 560px) {
   .page {
+    display: block;
+    width: 100%;
     padding: 18px 12px;
+  }
+
+  .todo-card {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 22px 16px;
+  }
+
+  .todo-card > * {
+    min-width: 0;
+  }
+
+  .title-wrap {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .title-wrap > div {
+    min-width: 0;
   }
 
   h1 {
@@ -715,6 +775,65 @@ h1 {
 
   .subtitle {
     font-size: 1.05rem;
+  }
+
+  .filter-list {
+    gap: 12px;
+  }
+
+  .filter-button {
+    width: 100%;
+    min-width: 0;
+    min-height: 56px;
+    padding: 0 18px;
+    flex: 1 1 100%;
+    font-size: 1.02rem;
+  }
+
+  .input-section,
+  .today-banner,
+  .status-card,
+  .history-section {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .history-scroll-hint {
+    font-size: 0.84rem;
+  }
+
+  .history-section {
+    padding: 20px 16px;
+  }
+
+  .history-grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    gap: 14px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-right: 0;
+    padding-bottom: 8px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .history-item {
+    width: 100%;
+    max-width: 100%;
+    scroll-snap-align: start;
+  }
+
+  .history-grid::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .history-scroll-hint {
+    display: block;
   }
 
   .todo-item {
